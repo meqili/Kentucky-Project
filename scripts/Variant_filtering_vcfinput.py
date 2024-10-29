@@ -76,7 +76,6 @@ known_variants_l = args.known_variants_l
 aaf = float(args.aaf)
 output_basename = args.output_basename
 vcf_input_path = args.vcf_input
-biospecimen_id_value = None  # Declare as global
 
 # customized tables loading
 hg38_HGMD_variant = spark.read.parquet(args.hgmd_var)
@@ -222,15 +221,15 @@ def gene_based_filt(gnomAD_TOPMed_maf, dpc_l, dpc_u,
         .where(t_occ_csq_dbn.flag == 1) \
         .drop('flag')
     
-    return (t_output)
+    return t_output, biospecimen_id_value
 
 
 # define output name and write table t_output
-def write_output(t_output, output_basename):
+def write_output(t_output, output_basename, biospecimen_id_value):
     Date = list(spark.sql("select current_date()") \
                 .withColumn("current_date()", F.col("current_date()").cast("string")) \
                 .toPandas()['current_date()'])
-    output_filename = f"{biospecimen_id_value}_" + "_".join(Date) + "_" + output_basename + ".tsv.gz"
+    output_filename = "_".join(Date) + f"_{output_basename}_{biospecimen_id_value}.tsv.gz"
     # Sort the output
     t_output_sorted = t_output.sort(
         F.asc(
@@ -254,7 +253,7 @@ if args.consequences is None:
     print("Missing consequences parquet file", file=sys.stderr)
     exit(1)
 
-t_output = gene_based_filt(gnomAD_TOPMed_maf, dpc_l, dpc_u,
+t_output, biospecimen_id_value = gene_based_filt(gnomAD_TOPMed_maf, dpc_l, dpc_u,
                     known_variants_l, aaf, hg38_HGMD_variant, dbnsfp_annovar, clinvar, 
                     consequences, standardized_vcf_df)
-write_output(t_output, output_basename)
+write_output(t_output, output_basename, biospecimen_id_value)

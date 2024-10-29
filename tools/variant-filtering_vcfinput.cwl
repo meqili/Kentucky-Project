@@ -1,8 +1,8 @@
 cwlVersion: v1.2
 class: CommandLineTool
-label: Gene_Based_Variant_Filtering (VCF Input)
+label: Variant_Filtering (VCF Input)
 doc: |-
-  Get a list of deleterious variants in interested genes from specified study cohort(s) in the Kids First program.
+  Get a list of deleterious variants in all genes from specified study cohort(s) in the Kids First program.
 $namespaces:
   sbg: https://sevenbridges.com
 
@@ -15,9 +15,9 @@ requirements:
   dockerPull: pgc-images.sbgenomics.com/qqlii44/pyspark:3.5.1
 - class: InitialWorkDirRequirement
   listing:
-  - entryname: Gene_based_variant_filtering_vcfinput_allgene.py
+  - entryname: Variant_filtering_vcfinput.py
     entry:
-      $include: ../scripts/Gene_based_variant_filtering_vcfinput_allgene.py
+      $include: ../scripts/Variant_filtering_vcfinput.py
 - class: InlineJavascriptRequirement
 
 inputs:
@@ -174,5 +174,5 @@ arguments:
   shellQuote: false
 - position: 2
   valueFrom: |-
-    && python Gene_based_variant_filtering_vcfinput_allgene.py --dbnsfp ./$(inputs.dbnsfp_annovar.nameroot.replace(".tar", ""))/ --hgmd_var ./$(inputs.hgmd_var.nameroot.replace(".tar", ""))/ 
+    && python Variant_filtering_vcfinput.py --dbnsfp ./$(inputs.dbnsfp_annovar.nameroot.replace(".tar", ""))/ --hgmd_var ./$(inputs.hgmd_var.nameroot.replace(".tar", ""))/ 
   shellQuote: false
